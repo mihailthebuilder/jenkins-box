@@ -1,5 +1,5 @@
 variable "region" {
-  default = "us-east-1"
+  default = "eu-west-2"
 }
 
 variable "ec2_instance_size_type" {
@@ -8,9 +8,4 @@ variable "ec2_instance_size_type" {
 
 variable "ec2_instance_root_volume_size" {
   default = 8
-}
-
-
-variable "ec2_instance_application_volume_size" {
-  default = 20
 }

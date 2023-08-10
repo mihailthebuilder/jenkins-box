@@ -10,12 +10,22 @@ resource "aws_security_group" "jenkins_security_group" {
   }
 }
 
-resource "aws_security_group_rule" "allow_web_access" {
+resource "aws_security_group_rule" "allow_http_access" {
   type              = "ingress"
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  cidr_blocks       = [data.aws_ssm_parameter.jenkins_allow_inbound_access_from_ip.value]
+  cidr_blocks       = ["${data.aws_ssm_parameter.jenkins_allow_inbound_access_from_ip.value}/32"]
+  security_group_id = aws_security_group.jenkins_security_group.id
+}
+
+
+resource "aws_security_group_rule" "allow_https_access" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["${data.aws_ssm_parameter.jenkins_allow_inbound_access_from_ip.value}/32"]
   security_group_id = aws_security_group.jenkins_security_group.id
 }
 
@@ -24,6 +34,6 @@ resource "aws_security_group_rule" "allow_ssh_access" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = [data.aws_ssm_parameter.jenkins_allow_inbound_access_from_ip.value]
+  cidr_blocks       = ["${data.aws_ssm_parameter.jenkins_allow_inbound_access_from_ip.value}/32"]
   security_group_id = aws_security_group.jenkins_security_group.id
 }
