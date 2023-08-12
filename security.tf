@@ -19,6 +19,14 @@ resource "aws_security_group_rule" "allow_http_access" {
   security_group_id = aws_security_group.jenkins_security_group.id
 }
 
+resource "aws_security_group_rule" "allow_jenkins_access" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  cidr_blocks       = ["${data.aws_ssm_parameter.jenkins_allow_inbound_access_from_ip.value}/32"]
+  security_group_id = aws_security_group.jenkins_security_group.id
+}
 
 resource "aws_security_group_rule" "allow_https_access" {
   type              = "ingress"
