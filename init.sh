@@ -33,7 +33,6 @@ iptables -I PREROUTING -t nat -p tcp --dport 443 -j REDIRECT --to-port 8443
 # Save iptables configuration between restarts of the service
 iptables-save > /etc/sysconfig/iptables
 
-
 ### Install Jenkins
 
 # Add Jenkins repo
