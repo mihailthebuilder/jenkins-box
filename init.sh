@@ -5,6 +5,8 @@ sudo -i
 # Update packages
 yum update -y
 
+### Forward traffic from HTTP(S) ports to the Jenkins ports
+
 # Install iptables
 yum install iptables-services -y
 systemctl enable iptables
@@ -19,12 +21,20 @@ iptables -I INPUT 1 -p tcp --dport 8080 -j ACCEPT
 iptables -I INPUT 1 -p tcp --dport 443 -j ACCEPT
 iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT
 
-# Forward traffic from HTTP(S) ports to the Jenkins ports
-iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
-iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8443
+iptables -I OUTPUT 1 -p tcp --dport 8443 -j ACCEPT
+iptables -I OUTPUT 1 -p tcp --dport 8080 -j ACCEPT
+iptables -I OUTPUT 1 -p tcp --dport 443 -j ACCEPT
+iptables -I OUTPUT 1 -p tcp --dport 80 -j ACCEPT
+
+# Forward traffic from HTTP(S) ports to the Jenkins ports across all protocols
+iptables -I PREROUTING -t nat -p tcp --dport 80 -j REDIRECT --to-port 8080
+iptables -I PREROUTING -t nat -p tcp --dport 443 -j REDIRECT --to-port 8443
 
 # Save iptables configuration between restarts of the service
 iptables-save > /etc/sysconfig/iptables
+
+
+### Install Jenkins
 
 # Add Jenkins repo
 wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
