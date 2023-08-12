@@ -38,3 +38,6 @@ iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT
 # Forward traffic from HTTP(S) ports to the Jenkins ports
 iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
 iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8443
+
+# Save iptables configuration between restarts of the service
+iptables-save > /etc/sysconfig/iptables
