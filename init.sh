@@ -2,6 +2,9 @@
 
 sudo -i
 
+# Update packages
+yum update -y
+
 # Install iptables
 yum install iptables-services -y
 systemctl enable iptables
@@ -22,9 +25,6 @@ iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8
 
 # Save iptables configuration between restarts of the service
 iptables-save > /etc/sysconfig/iptables
-
-# Update packages
-yum update -y
 
 # Add Jenkins repo
 wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
