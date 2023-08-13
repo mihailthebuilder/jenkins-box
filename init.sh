@@ -3,50 +3,58 @@
 sudo -i
 
 # Update packages
-yum update -y
+apt-get update; apt-get full-upgrade -y; apt-get autoclean -y;
+
+### Set up SSL certificate
+
+# Install certbot
+snap install --classic certbot
+
+# Prepare certbot command
+ln -s /snap/bin/certbot /usr/bin/certbot
+
+# Run certbot
+certbot certonly --standalone --non-interactive --agree-tos --email ${email} --domain ${domain}
 
 ### Forward traffic from HTTP(S) ports to the Jenkins ports
 
-# Install iptables
-yum install iptables-services -y
-systemctl enable iptables
-systemctl start iptables
+# Install nftables
+apt-get install nftables -y
 
-# Clear previous rules that blocked access
-iptables -F 
+# Create routing ruleset file
+cat <<EOF > nft_rules.nft
+table ip nat {
+    chain prerouting {
+        type nat hook prerouting priority 0; policy accept;
+        tcp dport 80 redirect to :8080
+        tcp dport 443 redirect to :8443
+    }
+}
+EOF
 
-# Allow traffic to HTTP(S) and Jenkins ports
-iptables -I INPUT 1 -p tcp --dport 8443 -j ACCEPT
-iptables -I INPUT 1 -p tcp --dport 8080 -j ACCEPT
-iptables -I INPUT 1 -p tcp --dport 443 -j ACCEPT
-iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT
+# Load ruleset
+nft -f nft_rules.nft
 
-iptables -I OUTPUT 1 -p tcp --dport 8443 -j ACCEPT
-iptables -I OUTPUT 1 -p tcp --dport 8080 -j ACCEPT
-iptables -I OUTPUT 1 -p tcp --dport 443 -j ACCEPT
-iptables -I OUTPUT 1 -p tcp --dport 80 -j ACCEPT
+# Save ruleset so it works after reboot
+nft list ruleset > /etc/nftables.conf
 
-# Forward traffic from HTTP(S) ports to the Jenkins ports across all protocols
-iptables -I PREROUTING -t nat -p tcp --dport 80 -j REDIRECT --to-port 8080
-iptables -I PREROUTING -t nat -p tcp --dport 443 -j REDIRECT --to-port 8443
-
-# Save iptables configuration between restarts of the service
-iptables-save > /etc/sysconfig/iptables
-
-### Install Jenkins
-
-# Add Jenkins repo
-wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
-
-# Import key file from Jenkins-CI to enable installation from package
-rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-yum upgrade
+### Set up Jenkins
 
 # Install Java
-dnf install java-11-amazon-corretto -y
+apt-get install openjdk-17-jdk openjdk-17-jre -y
+
+# Import key file from Jenkins-CI to enable installation from package
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+# Add Jenkins repo
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
 
 # Install Jenkins
-yum install jenkins -y
+apt-get update -y
+apt-get install jenkins -y
 
 # Enable Jenkins to start at boot
 systemctl enable jenkins

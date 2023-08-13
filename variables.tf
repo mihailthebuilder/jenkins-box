@@ -3,9 +3,9 @@ variable "region" {
 }
 
 variable "ec2_instance_size_type" {
-  default = "t4g.medium"
+  default = "t4g.small"
 }
 
-variable "ec2_instance_root_volume_size" {
+variable "ec2_instance_additional_storage_size" {
   default = 8
 }

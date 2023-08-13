@@ -1,27 +1,27 @@
 data "aws_ssm_parameter" "jenkins_public_key" {
-  name = "/jenkins-box/public-key"
+  name = "/jenkins-box/instance/ssh-public-key"
+}
+
+data "aws_ssm_parameter" "jenkins_certbot_email" {
+  name = "/jenkins-box/instance/certbot-email"
 }
 
 data "aws_ssm_parameter" "jenkins_vpc_id" {
-  name = "/jenkins-box/vpc/id"
+  name = "/jenkins-box/security/vpc-id"
 }
 
 data "aws_ssm_parameter" "jenkins_allow_inbound_access_from_ip" {
-  name = "/jenkins-box/ip"
+  name = "/jenkins-box/security/allow-ip"
 }
 
-data "aws_ami" "amazon_linux_2023" {
-  most_recent = true
+data "aws_ssm_parameter" "ubuntu_20_ami_id" {
+  name = "/aws/service/canonical/ubuntu/server/20.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
+}
 
-  filter {
-    name   = "name"
-    values = ["al2023-ami-2023*"]
-  }
+data "aws_ssm_parameter" "domain_route53_zone_id" {
+  name = "/jenkins-box/domain/route53-zone-id"
+}
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["137112412989"]
+data "aws_ssm_parameter" "subdomain" {
+  name = "/jenkins-box/domain/subdomain"
 }
