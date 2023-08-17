@@ -9,10 +9,7 @@ resource "aws_instance" "jenkins_instance" {
   key_name               = aws_key_pair.jenkins_ec2_key_pair.key_name
   vpc_security_group_ids = [aws_security_group.jenkins_security_group.id]
 
-  user_data = templatefile("init.sh", {
-    email : data.aws_ssm_parameter.jenkins_certbot_email.value,
-    domain : data.aws_ssm_parameter.subdomain.value,
-  })
+  user_data = templatefile("init.sh", {})
 }
 
 resource "aws_ebs_volume" "jenkins_additional_storage" {
@@ -25,12 +22,4 @@ resource "aws_volume_attachment" "jenkins_additional_storage_attachment" {
   device_name = "/dev/sdh"
   volume_id   = aws_ebs_volume.jenkins_additional_storage.id
   instance_id = aws_instance.jenkins_instance.id
-}
-
-resource "aws_route53_record" "jenkins_site_subdomain" {
-  zone_id = data.aws_ssm_parameter.domain_route53_zone_id.value
-  name    = data.aws_ssm_parameter.subdomain.value
-  type    = "A"
-  ttl     = 60
-  records = [aws_instance.jenkins_instance.public_ip]
 }
