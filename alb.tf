@@ -13,8 +13,14 @@ resource "aws_lb" "jenkins_instance_load_balancer" {
   name               = "jenkins-instance-load-balancer"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.jenkins_security_group.id]
+  security_groups    = [aws_security_group.alb_security_group.id]
   subnets            = data.aws_subnets.jenkins_subnets.ids
+
+  lifecycle {
+    replace_triggered_by = [
+      aws_security_group.alb_security_group.name
+    ]
+  }
 }
 
 resource "aws_lb_listener" "https_listener" {

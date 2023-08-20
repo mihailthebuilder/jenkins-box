@@ -8,6 +8,10 @@ resource "aws_security_group" "alb_security_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  timeouts {
+    delete = "2m"
+  }
 }
 
 resource "aws_security_group_rule" "allow_https_access_to_alb_from_ip" {

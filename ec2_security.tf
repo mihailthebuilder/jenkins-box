@@ -8,6 +8,10 @@ resource "aws_security_group" "jenkins_ec2_security_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  timeouts {
+    delete = "2m"
+  }
 }
 
 resource "aws_security_group_rule" "allow_access_from_alb_to_jenkins_on_ec2" {
@@ -15,7 +19,7 @@ resource "aws_security_group_rule" "allow_access_from_alb_to_jenkins_on_ec2" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  cidr_blocks       = [data.data.aws_vpc.jenkins_vpc.cidr_block]
+  cidr_blocks       = [data.aws_vpc.jenkins_vpc.cidr_block]
   security_group_id = aws_security_group.jenkins_ec2_security_group.id
 }
 

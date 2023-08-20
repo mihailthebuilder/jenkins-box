@@ -7,9 +7,15 @@ resource "aws_instance" "jenkins_instance" {
   ami                    = data.aws_ssm_parameter.ubuntu_20_ami_id.value
   instance_type          = var.ec2_instance_size_type
   key_name               = aws_key_pair.jenkins_ec2_key_pair.key_name
-  vpc_security_group_ids = [aws_security_group.jenkins_security_group.id]
+  vpc_security_group_ids = [aws_security_group.jenkins_ec2_security_group.id]
 
   user_data = templatefile("init.sh", {})
+
+  lifecycle {
+    replace_triggered_by = [
+      aws_security_group.jenkins_ec2_security_group.name
+    ]
+  }
 }
 
 resource "aws_ebs_volume" "jenkins_additional_storage" {
