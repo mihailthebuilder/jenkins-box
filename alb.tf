@@ -14,7 +14,7 @@ resource "aws_lb" "jenkins_instance_load_balancer" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_security_group.id]
-  subnets            = data.aws_subnets.jenkins_subnets.ids
+  subnets            = data.aws_subnets.vpc_subnets.ids
 
   lifecycle {
     replace_triggered_by = [

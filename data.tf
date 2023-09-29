@@ -6,10 +6,6 @@ data "aws_ssm_parameter" "jenkins_vpc_id" {
   name = "/jenkins-box/security/vpc-id"
 }
 
-data "aws_vpc" "jenkins_vpc" {
-  id = data.aws_ssm_parameter.jenkins_vpc_id.value
-}
-
 data "aws_ssm_parameter" "jenkins_allow_inbound_access_from_ip" {
   name = "/jenkins-box/security/allow-ip"
 }
@@ -35,7 +31,7 @@ data "aws_acm_certificate" "issued" {
   statuses = ["ISSUED"]
 }
 
-data "aws_subnets" "jenkins_subnets" {
+data "aws_subnets" "vpc_subnets" {
   filter {
     name   = "vpc-id"
     values = [data.aws_ssm_parameter.jenkins_vpc_id.value]
